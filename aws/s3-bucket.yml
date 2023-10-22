@@ -33,7 +33,7 @@ Resources:
               - s3:PutObject*
               - s3:DeleteObject*
             Resource:
-              - 'arn:aws:s3:::pic-sure-data-sharing-bucketprototype/*' 
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}/*'
     
   # Uploaders need PUT access to the S3 bucket, but nothing else
   # Each institution has a single uploader, tied to their PIC-SURE node
@@ -79,8 +79,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Resource:
-                  - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName, '/*']]
-                  - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+                  - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}/*'
+                  - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}'
                 Action:
                   - s3:*
 
@@ -128,7 +128,7 @@ Resources:
   StudyBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['', ['pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+      BucketName: !Join ['-', ['pic-sure-data-sharing-bucket', !Ref InstitutionName]]
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -150,8 +150,9 @@ Resources:
     DependsOn:
       - DataUploader
       - SWBClient
+      - StudyBucket
     Properties:
-      Bucket: !Join ['', ['pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+      Bucket: !Join ['-', ['pic-sure-data-sharing-bucket', !Ref InstitutionName]]
       PolicyDocument:
         Statement:
           - Sid: Deny requests that do not use TLS/HTTPS
@@ -159,8 +160,8 @@ Resources:
             Principal: '*'
             Action: s3:*
             Resource:
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName, '/*']]
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}/*'
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}'
             Condition:
               Bool:
                 aws:SecureTransport: false
@@ -173,8 +174,8 @@ Resources:
               - s3:PutObject*
               - s3:DeleteObject*
             Resource:
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName, '/*']]
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}/*'
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}'
             Condition:
               Bool:
                 aws:SecureTransport: false
@@ -185,8 +186,8 @@ Resources:
               - !Sub arn:aws:iam::${AWS::AccountId}:role/SWBDataConsumerRole
             Action: s3:*
             Resource:
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName, '/*']]
-              - !Join ['', ['arn:aws:s3:::pic-sure-data-sharing-bucket', !Ref InstitutionName]]
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}/*'
+              - !Sub 'arn:aws:s3:::pic-sure-data-sharing-bucket-${InstitutionName}'
             Condition:
               Bool:
                 aws:SecureTransport: false
